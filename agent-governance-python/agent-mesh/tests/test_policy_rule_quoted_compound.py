@@ -56,3 +56,11 @@ def test_or_outside_quotes_still_splits():
     assert rule.evaluate({"tool": {"name": "a or b"}}) is True
     assert rule.evaluate({"tool": {"name": "c"}}) is True
     assert rule.evaluate({"tool": {"name": "a"}}) is False
+
+
+def test_unbalanced_quote_fails_closed():
+    condition = "tool.name == 'x or tool.name == 'read_file'"
+    deny = PolicyRule(name="deny-unbalanced", condition=condition, action="deny")
+    allow = PolicyRule(name="allow-unbalanced", condition=condition, action="allow")
+    assert deny.evaluate({"tool": {"name": "read_file"}}) is True
+    assert allow.evaluate({"tool": {"name": "read_file"}}) is False
